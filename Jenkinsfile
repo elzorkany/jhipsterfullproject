@@ -5,27 +5,26 @@ node {
         checkout scm
     }
 
-    docker.image('jhipster/jhipster:v5.3.4').inside('-u root -e MAVEN_OPTS="-Duser.home=./"') {
         stage('check java') {
-            bat "java -version"
+            sh "java -version"
         }
 
         stage('clean') {
-            bat "chmod +x mvnw"
-            bat "./mvnw clean"
+            sh "chmod +x mvnw"
+            sh "./mvnw clean"
         }
 
         stage('install tools') {
-            bat "./mvnw com.github.eirslett:frontend-maven-plugin:install-node-and-npm -DnodeVersion=v8.11.4 -DnpmVersion=6.4.1"
+            sh "./mvnw com.github.eirslett:frontend-maven-plugin:install-node-and-npm -DnodeVersion=v8.11.4 -DnpmVersion=6.4.1"
         }
 
         stage('npm install') {
-            bat "./mvnw com.github.eirslett:frontend-maven-plugin:npm"
+            sh "./mvnw com.github.eirslett:frontend-maven-plugin:npm"
         }
 
         stage('backend tests') {
             try {
-                bat "./mvnw test"
+                sh "./mvnw test"
             } catch(err) {
                 throw err
             } finally {
@@ -35,7 +34,7 @@ node {
 
         stage('frontend tests') {
             try {
-                bat "./mvnw com.github.eirslett:frontend-maven-plugin:npm -Dfrontend.npm.arguments='test -- -u'"
+                sh "./mvnw com.github.eirslett:frontend-maven-plugin:npm -Dfrontend.npm.arguments='test -- -u'"
             } catch(err) {
                 throw err
             } finally {
@@ -44,8 +43,8 @@ node {
         }
 
         stage('packaging') {
-            bat "./mvnw verify -Pprod -DskipTests"
+            sh "./mvnw verify -Pprod -DskipTests"
             archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
         }
-    }
+  
 }
